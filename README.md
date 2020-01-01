@@ -25,13 +25,14 @@ if (deflect_attach_hook(hookQueue) != DEFLECT_STATE_HOOKED){
     alert('Error!');
 }
 ```
-
+```
 After hooking the console.log api, let's see what happens when you call it.
-
+```
 ```javascript
 //Now, let's see what happens when call console.log
 console.log("Test!");
 ```
-
+```
 And our result will be:
+```
 <img align="center" src="https://i.imgur.com/LUtyZEM.png" alt="Hooked: Test!" style="display:block;">
