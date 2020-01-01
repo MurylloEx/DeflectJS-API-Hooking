@@ -16,6 +16,8 @@ Original output when calling console.log
     <img src="https://i.imgur.com/Su9MVXi.png" alt="Hooked: Test!" style="display:block;">
 </p>
 
+### Hooking the function console.log using DeflectJS Hooking Engine
+
 ```javascript
 var hookStruct; //Struct that contains our hook data.
 var hookQueue = []; //Queue where our hook will be added.
