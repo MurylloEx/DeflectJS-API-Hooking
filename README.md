@@ -34,4 +34,4 @@ console.log("Test!");
 ```
 
 And our result will be:
-![Hooked: Test!](https://i.imgur.com/LUtyZEM.png)
+<img align="center" src="https://i.imgur.com/LUtyZEM.png" alt="Hooked: Test!">
