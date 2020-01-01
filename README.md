@@ -1,7 +1,12 @@
 # DeflectJS API - Hooking
-> Make it easier to hook APIs and functions into javascript.
+Make it easier to hook APIs and functions into javascript.
 
 ### Get started into DeflectJS Hooking Engine
+```
+Our example will show how to change the behavior of the console.log function using a replacement hook.
+The console.log by default display a text parameter specified 
+```
+
 
 ```javascript
 var hookStruct; //Struct that contains our hook data.
