@@ -5,8 +5,7 @@ Make it easier to hook APIs and functions into javascript.
 
 Our example will show how to change the behavior of the console.log function using a replacement hook.
 
-The console.log by default display a text parameter specified in log(str).
-Let's change the real output to "Hooked: " + str. When the user call console.log(str) again will display a string "Hooked: " + str. Thus, console.log("Test!") gives "Hooked: Test!" instead of "Test!".
+The console.log by default display a text parameter specified in log(str). Let's change the real output to "Hooked: " + str. When the user call console.log(str) again will display a string "Hooked: " + str. Thus, console.log("Test!") gives "Hooked: Test!" instead of "Test!".
 
 ```
 Original output when calling console.log
@@ -53,3 +52,10 @@ And our result will be:
 <p align="left">
     <img src="https://i.imgur.com/LUtyZEM.png" alt="Hooked: Test!" style="display:block;">
 </p>
+
+### Unhooking the function console.log using DeflectJS Hooking Engine
+```javascript
+if (deflect_detach_hook(hookQueue) == DEFLECT_STATE_UNHOOKED){
+    alert('Successful unhooked!');
+}
+```
