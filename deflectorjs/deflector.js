@@ -80,6 +80,7 @@ function deflect_generate_guid(){
  */
 function deflect_enqueue_hook(hookStruct, queueHook){
     if (typeof queueHook == "undefined"){
+        hookStruct.HookState = DEFLECT_STATE_FAILED;
         return DEFLECT_STATE_FAILED;
     }
     if (queueHook == null){
@@ -98,6 +99,7 @@ function deflect_enqueue_hook(hookStruct, queueHook){
         }
     }
     hookStruct.Guid = guid;
+    hookStruct.HookState = DEFLECT_STATE_ENQUEUED;
     queueHook.push(hookStruct);
     return DEFLECT_STATE_ENQUEUED;
 }
@@ -111,6 +113,7 @@ function deflect_dequeue_hook(hookGuid, queueHook){
     for (let k = 0; k < queueHook.length; k++){
         if (queueHook[k].Guid == hookGuid){
             queueHook.splice(k, 1);
+            queueHook[k].HookState = DEFLECT_STATE_DEQUEUED;
             return DEFLECT_STATE_DEQUEUED;
         }
     }
@@ -127,6 +130,7 @@ function deflect_attach_hook(queueHook){
     }
     for (let k = 0; k < queueHook.length; k++){
         queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].HookStub;
+        queueHook[k].HookState = DEFLECT_STATE_HOOKED;
     }
     return DEFLECT_STATE_HOOKED;
 }
@@ -141,6 +145,7 @@ function deflect_detach_hook(queueHook){
     }
     for (let k = 0; k < queueHook.length; k++){
         queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].OriginalFunction;
+        queueHook[k].HookState = DEFLECT_STATE_UNHOOKED;
     }
     return DEFLECT_STATE_UNHOOKED;
 }
