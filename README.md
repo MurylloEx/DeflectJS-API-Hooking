@@ -1,7 +1,7 @@
 # DeflectJS API - Hooking
 > Make it easier to hook APIs and functions into javascript.
 
-** Get started into DeflectJS Hooking Engine
+### Get started into DeflectJS Hooking Engine
 
 ```javascript
 var hookStruct; //Struct that contains our hook data.
@@ -26,12 +26,12 @@ if (deflect_attach_hook(hookQueue) != DEFLECT_STATE_HOOKED){
 }
 ```
 
-> After hooking the console.log api, let's see what happens when you call it.
+After hooking the console.log api, let's see what happens when you call it.
 
 ```javascript
 //Now, let's see what happens when call console.log
 console.log("Test!");
 ```
 
-> And our result will be:
-<img align="center" src="https://i.imgur.com/LUtyZEM.png" alt="Hooked: Test!">
+And our result will be:
+<img align="center" src="https://i.imgur.com/LUtyZEM.png" alt="Hooked: Test!" style="display:block;">
