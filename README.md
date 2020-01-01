@@ -2,24 +2,24 @@
  Make it easier to hook APIs and functions into javascript.
 
 ```javascript
-var hookStruct; //Estrutura contendo os dados referentes ao gancho.
-var hookQueue = []; //Fila de ganchos a serem anexados.
+var hookStruct; //Struct that contains our hook data.
+var hookQueue = []; //Queue where our hook will be added.
 
-//Função substituta do SysShowEventAsync.
+//Function that will replace the current console.log
 function hookedLog(text){
     return hookStruct.OriginalFunction("Hooked: " + text);
 }
 
-//Criando o desvio (stub de interceptação da função original).
-hookStruct = deflect_create_hook(SysShowEventAsync, hookedSysShowEventAsync, DEFLECT_OVERWRITTEN_HOOK);
+//Creating the stub that will intercept calls for console.log
+hookStruct = deflect_create_hook(console.log, hookedLog, DEFLECT_OVERWRITTEN_HOOK, console);
 
-//Adicionando o gancho para a fila de ganchos a serem anexados.
+//Adding the hooks in the queue to be attached.
 if (deflect_enqueue_hook(hookStruct, hookQueue) != DEFLECT_STATE_ENQUEUED){
-    alert('Erro!');
+    alert('Error!');
 }
 
-//Anexando todos os ganchos da fila.
+//Attaching all hooks in queue.
 if (deflect_attach_hook(hookQueue) != DEFLECT_STATE_HOOKED){
-    alert('Erro!');
+    alert('Error!');
 }
 ```
