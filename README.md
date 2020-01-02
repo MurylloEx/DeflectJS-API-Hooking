@@ -60,3 +60,6 @@ if (deflect_detach_hook(hookQueue) == DEFLECT_STATE_UNHOOKED){
 
 ### Malicious use of DeflectJS Hooking Engine
 When a function is hooked its behavior changes and leads to different results than the application intended. Malicious use of hooks to exploit systems is discouraged and isn't our responsibility.
+
+### Wiki of DeflectJS Engine Hooking
+Visit our [wiki page](https://github.com/MurylloEx/DeflectJS-API-Hooking/wiki) and read our api sample.
