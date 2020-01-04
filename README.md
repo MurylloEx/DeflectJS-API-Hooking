@@ -21,11 +21,14 @@ var hookQueue = []; //Queue where our hook will be added.
 
 //Function that will replace the current console.log
 function hookedLog(text){
-    return hookStruct.OriginalFunction("Hooked: " + text);
+    deflect_unpatch_original(hookStruct); //Unpatch the original function.
+    let result = console.log("Hooked: " + text);
+    deflect_patch_original(hookStruct); //Patch again the original function.
+    return result;
 }
 
 //Creating the stub that will intercept calls for console.log
-hookStruct = deflect_create_hook(console.log, hookedLog, DEFLECT_OVERWRITTEN_HOOK, console);
+hookStruct = deflect_create_native_hook(console.log, hookedLog, DEFLECT_NATIVE_OVERWRITTEN_HOOK, console);
 
 //Adding the hooks in the queue to be attached.
 if (deflect_enqueue_hook(hookStruct, hookQueue) != DEFLECT_STATE_ENQUEUED){
@@ -60,6 +63,15 @@ if (deflect_detach_hook(hookQueue) == DEFLECT_STATE_UNHOOKED){
 
 ### Malicious use of DeflectJS Hooking Engine
 When a function is hooked its behavior changes and leads to different results than the application intended. Malicious use of hooks to exploit systems is discouraged and isn't our responsibility.
+
+### Compatibility of modern browsers
+
+|     Browser     |  Verified version | Supported features |
+|:---------------:|:-----------------:|:------------------:|
+|  Google Chrome  |   v79.0.3945.88   |    All features    |
+| Mozilla Firefox |       v71.0       |    All features    |
+|      Opera      |   v65.0.3467.78   |    All features    |
+|  Microsoft Edge | v20.10240.16384.0 |    All features    |
 
 ### Wiki of DeflectJS Engine Hooking
 Visit our [wiki page](https://github.com/MurylloEx/DeflectJS-API-Hooking/wiki) and read our api sample.
