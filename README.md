@@ -61,9 +61,6 @@ if (deflect_detach_hook(hookQueue) == DEFLECT_STATE_UNHOOKED){
 }
 ```
 
-### Malicious use of DeflectJS Hooking Engine
-When a function is hooked its behavior changes and leads to different results than the application intended. Malicious use of hooks to exploit systems is discouraged and isn't our responsibility.
-
 ### Compatibility of modern browsers
 
 |     Browser     |  Verified version | Supported features |
@@ -72,6 +69,9 @@ When a function is hooked its behavior changes and leads to different results th
 | Mozilla Firefox |       v71.0       |    All features    |
 |      Opera      |   v65.0.3467.78   |    All features    |
 |  Microsoft Edge | v20.10240.16384.0 |    All features    |
+
+### Malicious use of DeflectJS Hooking Engine
+When a function is hooked its behavior changes and leads to different results than the application intended. Malicious use of hooks to exploit systems is discouraged and isn't our responsibility.
 
 ### Wiki of DeflectJS Engine Hooking
 Visit our [wiki page](https://github.com/MurylloEx/DeflectJS-API-Hooking/wiki) and read our api sample.
