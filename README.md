@@ -4,7 +4,7 @@ Make it easier to hook APIs and functions into javascript using DeflectJS API Ho
 ### Get started into DeflectJS Hooking Engine
  
 Our example will show how to change the behavior of the console.log function using a replacement hook.
-
+ 
 The console.log by default display a text parameter specified in log(str), thus let's change the real output to "Hooked: " + str. When an user call console.log(str) the string displayed should be "Hooked: " + str. After attach our hook, console.log("Test!") will give "Hooked: Test!" instead of "Test!".
 
 Original output when calling console.log
