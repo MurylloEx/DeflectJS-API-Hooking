@@ -21,10 +21,7 @@ var hookQueue = []; //Queue where our hook will be added.
 
 //Function that will replace the current console.log
 function hookedLog(text){
-    deflect_unpatch_original(hookStruct); //Unpatch the original function.
-    let result = console.log("Hooked: " + text);
-    deflect_patch_original(hookStruct); //Patch again the original function.
-    return result;
+    return hookStruct.OriginalFunction("Hooked: " + text);
 }
 
 //Creating the stub that will intercept calls for console.log
