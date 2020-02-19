@@ -60,9 +60,9 @@ function deflect_create_hook(targFunc, newFunc, hookType, parent){
 
 /**Create a hook structure to be queued and after attached.
  * 
- * @param {*} targFunc Target function to be hooked.
- * @param {*} newFunc New function that will replace the target function.
- * @param {*} hookType The hook type (DEFLECT_NATIVE_PRE_OPERATION_HOOK, DEFLECT_NATIVE_OVERWRITTEN_HOOK or DEFLECT_NATIVE_POST_OPERATION_HOOK).
+ * @param {function} targFunc Target function to be hooked.
+ * @param {function} newFunc New function that will replace the target function.
+ * @param {number} hookType The hook type (DEFLECT_NATIVE_PRE_OPERATION_HOOK, DEFLECT_NATIVE_OVERWRITTEN_HOOK or DEFLECT_NATIVE_POST_OPERATION_HOOK).
  * @param {*} parent The parent object of target function (default: window).
  */
 function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
@@ -71,7 +71,7 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
         OriginalFunction: oldFunc,
         OriginalFunctionName: oldFunc.name,
         NewFunction: newFunc,
-        Parent: parent,
+        Parent: null,
         HookType: hookType,
         HookState: DEFLECT_STATE_WAITING,
         HookStub: function(){},
@@ -80,6 +80,7 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
     }
     if (typeof parent == "undefined" || parent == null){
         parent = window;
+        struct.Parent = parent;
     }
     if (typeof hookType == "undefined"){
         hookType = DEFLECT_NATIVE_OVERWRITTEN_HOOK;
@@ -93,10 +94,22 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
                 deflect_patch_original(struct);
                 return result;
             }
+            struct.OriginalFunction = function origaddrfunc() {
+                deflect_unpatch_original(struct);
+                let result = oldFunc.apply(this, arguments);
+                deflect_patch_original(struct);
+                return result;
+            }
             break;
         case DEFLECT_NATIVE_OVERWRITTEN_HOOK:
             struct.HookStub = function defntoverhookstub() {
                 return newFunc.apply(this, arguments);
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                deflect_unpatch_original(struct);
+                let result = oldFunc.apply(this, arguments);
+                deflect_patch_original(struct);
+                return result;
             }
             break;
         case DEFLECT_NATIVE_POST_OPERATION_HOOK:
@@ -107,10 +120,22 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
                 newFunc.apply(this, arguments);
                 return result;
             }
+            struct.OriginalFunction = function origaddrfunc() {
+                deflect_unpatch_original(struct);
+                let result = oldFunc.apply(this, arguments);
+                deflect_patch_original(struct);
+                return result;
+            }
             break;
         default:
             struct.HookStub = function defntoverhookstub() {
                 return newFunc.apply(this, arguments);
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                deflect_unpatch_original(struct);
+                let result = oldFunc.apply(this, arguments);
+                deflect_patch_original(struct);
+                return result;
             }
             break;
     }
