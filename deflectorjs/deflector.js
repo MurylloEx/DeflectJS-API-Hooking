@@ -71,7 +71,7 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
         OriginalFunction: oldFunc,
         OriginalFunctionName: oldFunc.name,
         NewFunction: newFunc,
-        Parent: null,
+        Parent: parent,
         HookType: hookType,
         HookState: DEFLECT_STATE_WAITING,
         HookStub: function(){},
