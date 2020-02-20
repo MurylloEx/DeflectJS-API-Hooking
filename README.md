@@ -21,7 +21,7 @@ var hookQueue = []; //Queue where our hook will be added.
 
 //Function that will replace the current console.log
 function hookedLog(text){
-    return hookStruct.OriginalFunction("Hooked: " + text);
+    return hookStruct.OriginalFunction("Hooked: " + text); 
 }
 
 //Creating the stub that will intercept calls for console.log
