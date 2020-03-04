@@ -11,7 +11,7 @@ Original output when calling console.log
 
 <p align="left">
     <img src="https://i.imgur.com/Su9MVXi.png" alt="Hooked: Test!" style="display:block;">
-</p>
+</p> 
 
 ### Hooking the function console.log using DeflectJS Hooking Engine
 
