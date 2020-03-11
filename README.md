@@ -1,5 +1,5 @@
 # DeflectJS API - Hooking
-Make it easier to hook APIs and functions into javascript using DeflectJS API Hooking. 
+Make it easier to hook APIs and functions into javascript using DeflectJS API Hooking.
 
 ### Get started into DeflectJS Hooking Engine
   
