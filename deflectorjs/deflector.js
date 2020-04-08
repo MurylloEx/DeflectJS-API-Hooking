@@ -2,9 +2,14 @@
 const DEFLECT_PRE_OPERATION_HOOK            = 0x01;
 const DEFLECT_OVERWRITTEN_HOOK              = 0x02;
 const DEFLECT_POST_OPERATION_HOOK           = 0x04;
+
 const DEFLECT_NATIVE_PRE_OPERATION_HOOK     = 0x08;
 const DEFLECT_NATIVE_OVERWRITTEN_HOOK       = 0x10;
 const DEFLECT_NATIVE_POST_OPERATION_HOOK    = 0x20;
+
+const DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK  = 0x40;
+const DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK    = 0x80;
+const DEFLECT_PROTOTYPE_POST_OPERATION_HOOK = 0x100;
 
 /** Return code of deflect api calls */
 const DEFLECT_STATE_WAITING         = 0x01;
@@ -19,7 +24,7 @@ const DEFLECT_STATE_DEQUEUED        = 0x20;
  * @param {function} targFunc Target function to be hooked.
  * @param {function} newFunc New function that will replace the target function.
  * @param {number} hookType The hook type (DEFLECT_PRE_OPERATION_HOOK, DEFLECT_OVERWRITTEN_HOOK or DEFLECT_POST_OPERATION_HOOK).
- * @param {*} parent The parent object of target function (default: window).
+ * @param {any} parent The parent object of target function (default: window).
  */
 function deflect_create_hook(targFunc, newFunc, hookType, parent){
     let oldFunc = targFunc;
@@ -63,7 +68,7 @@ function deflect_create_hook(targFunc, newFunc, hookType, parent){
  * @param {function} targFunc Target function to be hooked.
  * @param {function} newFunc New function that will replace the target function.
  * @param {number} hookType The hook type (DEFLECT_NATIVE_PRE_OPERATION_HOOK, DEFLECT_NATIVE_OVERWRITTEN_HOOK or DEFLECT_NATIVE_POST_OPERATION_HOOK).
- * @param {*} parent The parent object of target function (default: window).
+ * @param {any} parent The parent object of target function (default: window).
  */
 function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
     let oldFunc = targFunc;
@@ -88,15 +93,21 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
     switch (struct.HookType) {
         case DEFLECT_NATIVE_PRE_OPERATION_HOOK:
             struct.HookStub = function defntprehookstub() {
+                let result;
                 newFunc.apply(this, arguments);
                 deflect_unpatch_original(struct);
-                let result = struct.Parent[struct.OriginalFunctionName].apply(this, arguments);
+                try{
+                    result = struct.Parent[struct.OriginalFunctionName].apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 return result;
             }
             struct.OriginalFunction = function origaddrfunc() {
+                let result;
                 deflect_unpatch_original(struct);
-                let result = oldFunc.apply(this, arguments);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 return result;
             }
@@ -106,23 +117,32 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
                 return newFunc.apply(this, arguments);
             }
             struct.OriginalFunction = function origaddrfunc() {
+                let result;
                 deflect_unpatch_original(struct);
-                let result = oldFunc.apply(this, arguments);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 return result;
             }
             break;
         case DEFLECT_NATIVE_POST_OPERATION_HOOK:
             struct.HookStub = function defntposthookstub() {
+                let result;
                 deflect_unpatch_original(struct);
-                let result = struct.Parent[struct.OriginalFunctionName].apply(this, arguments);
+                try{
+                    result = struct.Parent[struct.OriginalFunctionName].apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 newFunc.apply(this, arguments);
                 return result;
             }
             struct.OriginalFunction = function origaddrfunc() {
+                let result;
                 deflect_unpatch_original(struct);
-                let result = oldFunc.apply(this, arguments);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 return result;
             }
@@ -132,14 +152,119 @@ function deflect_create_native_hook(targFunc, newFunc, hookType, parent){
                 return newFunc.apply(this, arguments);
             }
             struct.OriginalFunction = function origaddrfunc() {
+                let result;
                 deflect_unpatch_original(struct);
-                let result = oldFunc.apply(this, arguments);
+                try {
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
                 deflect_patch_original(struct);
                 return result;
             }
             break;
     }
     Object.defineProperty(struct.HookStub, "name", {value: oldFunc.name});
+    return struct;
+}
+
+/**
+ * 
+ * @param {function} targFunc The prototyped function target in parent object.
+ * @param {function} newFunc New function that will replace the target function.
+ * @param {number} hookType The hook type (DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK, DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK, DEFLECT_PROTOTYPE_POST_OPERATION_HOOK).
+ * @param {any} parent The parent object of target function (default: window).
+ */
+function deflect_create_prototype_hook(targFunc, newFunc, hookType, parent){
+    let oldFunc = targFunc;
+    let struct = {
+        OriginalFunction: oldFunc,
+        OriginalFunctionName: oldFunc.name,
+        NewFunction: newFunc,
+        Parent: parent,
+        HookType: hookType,
+        HookState: DEFLECT_STATE_WAITING,
+        HookStub: function(){},
+        PatchAddr: targFunc,
+        Guid: null
+    }
+    if (typeof parent == "undefined" || parent == null){
+        parent = window;
+        struct.Parent = parent;
+    }
+    if (typeof hookType == "undefined"){
+        hookType = DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK;
+    }
+    switch (hookType){
+        case DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK:
+            struct.HookStub = function defprotprehookstub(){
+                let result;
+                newFunc.apply(this, arguments);
+                deflect_unpatch_original(struct);
+                try{
+                    result = struct.Parent.prototype[struct.OriginalFunctionName].apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                return result;
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                let result;
+                deflect_unpatch_original(struct);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                return result;
+            }
+            break;
+        case DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK:
+            struct.HookStub = function defprotoverhookstub() {
+                return newFunc.apply(this, arguments);
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                let result;
+                deflect_unpatch_original(struct);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                return result;
+            }
+            break;
+        case DEFLECT_PROTOTYPE_POST_OPERATION_HOOK:
+            struct.HookStub = function defntposthookstub() {
+                let result;
+                deflect_unpatch_original(struct);
+                try{
+                    result = struct.Parent[struct.OriginalFunctionName].apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                newFunc.apply(this, arguments);
+                return result;
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                let result;
+                deflect_unpatch_original(struct);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                return result;
+            }
+            break;
+        default:
+            struct.HookStub = function defprotoverhookstub() {
+                return newFunc.apply(this, arguments);
+            }
+            struct.OriginalFunction = function origaddrfunc() {
+                let result;
+                deflect_unpatch_original(struct);
+                try{
+                    result = oldFunc.apply(this, arguments);
+                } catch(e){}
+                deflect_patch_original(struct);
+                return result;
+            }
+            break;
+    }
     return struct;
 }
 
@@ -221,8 +346,17 @@ function deflect_attach_hook(queueHook){
         return DEFLECT_STATE_FAILED;
     }
     for (let k = 0; k < queueHook.length; k++){
-        queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].HookStub;
-        queueHook[k].HookState = DEFLECT_STATE_HOOKED;
+        if (queueHook[k].HookType == DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK ||
+            queueHook[k].HookType == DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK || 
+            queueHook[k].HookType == DEFLECT_PROTOTYPE_POST_OPERATION_HOOK){
+            queueHook[k].Parent.prototype[queueHook[k].OriginalFunctionName] = queueHook[k].HookStub;
+            queueHook[k].HookState = DEFLECT_STATE_HOOKED;
+        }
+        else{
+            queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].HookStub;
+            queueHook[k].HookState = DEFLECT_STATE_HOOKED;
+        }
+        
     }
     return DEFLECT_STATE_HOOKED;
 }
@@ -236,8 +370,17 @@ function deflect_detach_hook(queueHook){
         return DEFLECT_STATE_FAILED;
     }
     for (let k = 0; k < queueHook.length; k++){
-        queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].OriginalFunction;
-        queueHook[k].HookState = DEFLECT_STATE_UNHOOKED;
+        if (queueHook[k].HookType == DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK ||
+            queueHook[k].HookType == DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK || 
+            queueHook[k].HookType == DEFLECT_PROTOTYPE_POST_OPERATION_HOOK){
+            queueHook[k].Parent.prototype[queueHook[k].OriginalFunctionName] = queueHook[k].OriginalFunction;
+            queueHook[k].HookState = DEFLECT_STATE_UNHOOKED;
+        }
+        else{
+            queueHook[k].Parent[queueHook[k].OriginalFunctionName] = queueHook[k].OriginalFunction;
+            queueHook[k].HookState = DEFLECT_STATE_UNHOOKED;
+        }
+        
     }
     return DEFLECT_STATE_UNHOOKED;
 }
@@ -250,8 +393,18 @@ function deflect_patch_original(hookStruct){
     if (hookStruct.HookType != DEFLECT_NATIVE_PRE_OPERATION_HOOK &&
         hookStruct.HookType != DEFLECT_NATIVE_OVERWRITTEN_HOOK &&
         hookStruct.HookType != DEFLECT_NATIVE_POST_OPERATION_HOOK) {
-        hookStruct.HookState = DEFLECT_STATE_FAILED;
-        return DEFLECT_STATE_FAILED;
+        if (hookStruct.HookType != DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK &&
+            hookStruct.HookType != DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK &&
+            hookStruct.HookType != DEFLECT_PROTOTYPE_POST_OPERATION_HOOK){
+            hookStruct.HookState = DEFLECT_STATE_FAILED;
+            return DEFLECT_STATE_FAILED;
+        }
+        else{
+            hookStruct.OriginalFunction = hookStruct.Parent.prototype[hookStruct.OriginalFunctionName];
+            hookStruct.Parent.prototype[hookStruct.OriginalFunctionName] = hookStruct.HookStub;
+            hookStruct.HookState = DEFLECT_STATE_HOOKED;
+            return DEFLECT_STATE_HOOKED;
+        }
     }
     hookStruct.OriginalFunction = hookStruct.Parent[hookStruct.OriginalFunctionName];
     hookStruct.Parent[hookStruct.OriginalFunctionName] = hookStruct.HookStub;
@@ -267,8 +420,18 @@ function deflect_unpatch_original(hookStruct){
     if (hookStruct.HookType != DEFLECT_NATIVE_PRE_OPERATION_HOOK &&
         hookStruct.HookType != DEFLECT_NATIVE_OVERWRITTEN_HOOK &&
         hookStruct.HookType != DEFLECT_NATIVE_POST_OPERATION_HOOK) {
-        hookStruct.HookState = DEFLECT_STATE_FAILED;
-        return DEFLECT_STATE_FAILED;
+        if (hookStruct.HookType != DEFLECT_PROTOTYPE_PRE_OPERATION_HOOK &&
+            hookStruct.HookType != DEFLECT_PROTOTYPE_OVERWRITTEN_HOOK &&
+            hookStruct.HookType != DEFLECT_PROTOTYPE_POST_OPERATION_HOOK){
+            hookStruct.HookState = DEFLECT_STATE_FAILED;
+            return DEFLECT_STATE_FAILED;
+        }
+        else{
+            hookStruct.HookStub = hookStruct.Parent.prototype[hookStruct.OriginalFunctionName];
+            hookStruct.Parent.prototype[hookStruct.OriginalFunctionName] = hookStruct.OriginalFunction;
+            hookStruct.HookState = DEFLECT_STATE_UNHOOKED;
+            return DEFLECT_STATE_UNHOOKED;
+        }
     }
     hookStruct.HookStub = hookStruct.Parent[hookStruct.OriginalFunctionName];
     hookStruct.Parent[hookStruct.OriginalFunctionName] = hookStruct.OriginalFunction;
