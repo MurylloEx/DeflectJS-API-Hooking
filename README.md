@@ -1,5 +1,16 @@
+<p align="center">
+    <img src="https://nodei.co/npm/deflectjs-engine.png?downloads=true&downloadRank=true&stars=true">
+</p> 
+<p align="center">
+    <img src="https://badgen.net/npm/v/deflectjs-engine"/>
+    <img src="https://badgen.net/npm/dt/deflectjs-engine"/>
+    <img src="https://badgen.net/npm/license/deflectjs-engine"/>
+    <img src="https://badgen.net/npm/types/deflectjs-engine"/>
+    <img src="https://badgen.net/badge/author/MurylloEx/red?icon=label"/>
+</p>
+
 # DeflectJS API - Hooking
-Make it easier to hook APIs and functions into javascript using DeflectJS API Hooking.
+Make it easier to hook APIs and functions into javascript using DeflectJS API Hooking. If you want install it in node, please check our npm package deflectjs-engine.
 
 ### Get started into DeflectJS Hooking Engine
   
@@ -60,12 +71,16 @@ if (deflect_detach_hook(hookQueue) == DEFLECT_STATE_UNHOOKED){
 
 ### Compatibility of modern browsers
 
+<center>
+
 |     Browser     |  Verified version | Supported features |
 |:---------------:|:-----------------:|:------------------:|
 |  Google Chrome  |   v79.0.3945.88   |    All features    |
 | Mozilla Firefox |       v71.0       |    All features    |
 |      Opera      |   v65.0.3467.78   |    All features    |
 |  Microsoft Edge | v20.10240.16384.0 |    All features    |
+
+</center>
 
 ### Malicious use of DeflectJS Hooking Engine
 When a function is hooked its behavior changes and leads to different results than the application intended. Malicious use of hooks to exploit systems is discouraged and isn't our responsibility. 
